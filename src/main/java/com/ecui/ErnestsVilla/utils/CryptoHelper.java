@@ -24,6 +24,12 @@ public class CryptoHelper {
 
     private boolean isDecryptionDone=false;
 
+    private final String AES_CIPHER_TRANSFORMATION="AES/CBC/PKCS5Padding";
+    private final String AES_KEY_ALGORITHM="AES";
+
+    private final String RSA_CIPHER_TRANSFORMATION="RSA/ECB/PKCS1Padding";
+    private final String RSA_KEY_ALGORITHM="RSA";
+
     public CryptoHelper(){
         this.objectMapper=new ObjectMapper();
         this.objectMapper.configure(
@@ -34,13 +40,13 @@ public class CryptoHelper {
         Cipher aesCipher;
 
         try {
-            aesCipher=Cipher.getInstance("AES/CBC/PKCS5Padding");
+            aesCipher=Cipher.getInstance(AES_CIPHER_TRANSFORMATION);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             e.printStackTrace();
             return null;
         }
 
-        SecretKeySpec secretKeySpec=new SecretKeySpec(this.aesKeyBytes,"AES");
+        SecretKeySpec secretKeySpec=new SecretKeySpec(this.aesKeyBytes,AES_KEY_ALGORITHM);
         IvParameterSpec ivParameterSpec=new IvParameterSpec(this.aesIvBytes);
 
         try {
@@ -62,13 +68,13 @@ public class CryptoHelper {
         Cipher aesCipher;
 
         try {
-            aesCipher=Cipher.getInstance("AES/CBC/PKCS5Padding");
+            aesCipher=Cipher.getInstance(AES_CIPHER_TRANSFORMATION);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             e.printStackTrace();
             return null;
         }
 
-        SecretKeySpec secretKeySpec=new SecretKeySpec(this.aesKeyBytes,"AES");
+        SecretKeySpec secretKeySpec=new SecretKeySpec(this.aesKeyBytes,AES_KEY_ALGORITHM);
         IvParameterSpec ivParameterSpec=new IvParameterSpec(this.aesIvBytes);
 
         try {
@@ -91,8 +97,8 @@ public class CryptoHelper {
         KeyFactory keyFactory;
 
         try {
-            aesCipher=Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            keyFactory=KeyFactory.getInstance("RSA");
+            aesCipher=Cipher.getInstance(RSA_CIPHER_TRANSFORMATION);
+            keyFactory=KeyFactory.getInstance(RSA_KEY_ALGORITHM);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             e.printStackTrace();
             return null;
