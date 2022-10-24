@@ -19,7 +19,7 @@ import java.util.Base64;
 
 public class CryptoHelper {
     private final ObjectMapper objectMapper;
-    private final String AES_IV="Cryptography2022";
+    private byte[] aesIvBytes;
     private byte[] aesKeyBytes;
 
     private boolean isDecryptionDone=false;
@@ -41,7 +41,7 @@ public class CryptoHelper {
         }
 
         SecretKeySpec secretKeySpec=new SecretKeySpec(this.aesKeyBytes,"AES");
-        IvParameterSpec ivParameterSpec=new IvParameterSpec(AES_IV.getBytes(StandardCharsets.UTF_8));
+        IvParameterSpec ivParameterSpec=new IvParameterSpec(this.aesIvBytes);
 
         try {
             aesCipher.init(Cipher.DECRYPT_MODE,secretKeySpec,ivParameterSpec);
@@ -69,7 +69,7 @@ public class CryptoHelper {
         }
 
         SecretKeySpec secretKeySpec=new SecretKeySpec(this.aesKeyBytes,"AES");
-        IvParameterSpec ivParameterSpec=new IvParameterSpec(AES_IV.getBytes(StandardCharsets.UTF_8));
+        IvParameterSpec ivParameterSpec=new IvParameterSpec(this.aesIvBytes);
 
         try {
             aesCipher.init(Cipher.ENCRYPT_MODE,secretKeySpec,ivParameterSpec);
@@ -140,6 +140,9 @@ public class CryptoHelper {
      * @param   ksCipher
      *          Base64编码的AES临时私钥。
      *
+     * @param   ivCipher
+     *          Base64编码的AES初始向量IV。
+     *
      * @param   rsaPrivateKey
      *          RSA私钥字符串，即UTF-8编码的私钥PEM文件完整内容。
      *          以{@code -----BEGIN PRIVATE KEY-----}开头，后接私钥Base64编码串，
@@ -156,11 +159,13 @@ public class CryptoHelper {
     public <T> T decryptRequestBody(
             String bodyCipher,
             String ksCipher,
+            String ivCipher,
             String rsaPrivateKey,
             TypeReference<T> type
     ){
         var bodyCipherBytes= Base64.getDecoder().decode(bodyCipher);
         var ksCipherBytes= Base64.getDecoder().decode(ksCipher);
+        var ivCipherBytes= Base64.getDecoder().decode(ivCipher);
 
         String aesKey=this.rsaDecrypt(
                 ksCipherBytes,
@@ -172,8 +177,19 @@ public class CryptoHelper {
             return null;
         }
 
-        // save AES key for encryption
+        String aesIv=this.rsaDecrypt(
+                ivCipherBytes,
+                Base64.getDecoder().decode(
+                        this.getPureRsaPrivateKeyBase64(rsaPrivateKey)
+                                .getBytes(StandardCharsets.UTF_8)));
+
+        if(aesIv==null){
+            return null;
+        }
+
+        // save AES key and IV for encryption
         this.aesKeyBytes=aesKey.getBytes(StandardCharsets.UTF_8);
+        this.aesIvBytes=aesIv.getBytes(StandardCharsets.UTF_8);
 
         String decryptedString=this.aesDecrypt(bodyCipherBytes);
 
@@ -196,8 +212,8 @@ public class CryptoHelper {
      * @return  使用浏览器临时私钥加密的响应体密文字符串，或者null如果加密过程出错。
      */
     public String encryptResponseBody(Object responseObj){
-        if(this.aesKeyBytes==null){
-            throw new RuntimeException("必须完成请求解密才能加密响应数据");
+        if(this.aesKeyBytes==null||this.aesIvBytes==null){
+            throw new RuntimeException("必须成功完成请求解密才能加密响应数据");
         }
 
         if(this.isDecryptionDone){

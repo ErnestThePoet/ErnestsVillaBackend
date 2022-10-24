@@ -17,7 +17,8 @@ public class UserController {
     @PostMapping(path = "/test")
     public String decTest(
             @RequestParam String bodyCipher,
-            @RequestParam String ksCipher
+            @RequestParam String ksCipher,
+            @RequestParam String ivCipher
     ){
         CryptoHelper helper=new CryptoHelper();
         // 获取证书私钥字符串，这里读文件作为演示
@@ -32,13 +33,14 @@ public class UserController {
         TestRequest request=helper.decryptRequestBody(
                 bodyCipher,
                 ksCipher,
+                ivCipher,
                 privateKey,
                 new TypeReference<TestRequest>(){}
         );
 
         // TODO 调用Service层执行操作
 
-        // 返回格式为加密后的字符串
+        // 传入响应对象即可，返回加密后的字符串
         return helper.encryptResponseBody(new TestResponse(true,""));
     }
 }
