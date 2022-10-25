@@ -1,6 +1,6 @@
 package com.ecui.ErnestsVilla.controller;
 
-import com.ecui.ErnestsVilla.utils.CryptoHelper;
+import com.ecui.ErnestsVilla.utils.HttpCryptoHelper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +20,7 @@ public class UserController {
             @RequestParam String ksCipher,
             @RequestParam String ivCipher
     ){
-        CryptoHelper helper=new CryptoHelper();
+        HttpCryptoHelper helper=new HttpCryptoHelper();
         // 获取证书私钥字符串，这里读文件作为演示
         String privateKey;
         try {
@@ -37,7 +37,6 @@ public class UserController {
                 privateKey,
                 new TypeReference<TestRequest>(){}
         );
-
         // TODO 调用Service层执行操作
 
         // 传入响应对象即可，返回加密后的字符串

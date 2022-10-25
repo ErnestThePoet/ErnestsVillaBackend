@@ -32,6 +32,7 @@ public class DateTimeUtil {
         try {
             return new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(s);
         } catch (ParseException e) {
+            e.printStackTrace();
             return new Date(0);
         }
     }
