@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DateTimeUtil {
+public class DateTimeHelper {
     private static final long MS_PER_HOUR=3600L*1000L;
     private static final long MS_PER_DAY=86400L*1000L;
     public static boolean isExpired(Date expire){
