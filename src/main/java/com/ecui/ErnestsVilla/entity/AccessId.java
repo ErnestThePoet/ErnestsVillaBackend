@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "g_access_ids",indexes = {
+@Table(name = "access_ids",indexes = {
         @Index(columnList = "accessIdHashed",unique = true)
 })
 public class AccessId {

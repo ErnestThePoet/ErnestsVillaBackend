@@ -6,26 +6,29 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(columnList = "account", unique = true),
+        @Index(columnList = "sessionIdHashed")
+})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name",nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "account",nullable = false,unique = true)
+    @Column(name = "account", nullable = false, unique = true)
     private String account;
 
-    @Column(name = "pwHashed",nullable = false)
+    @Column(name = "pwHashed", nullable = false)
     private String pwHashed;
 
-    @Column(name = "sessionIdHashed",nullable = false)
+    @Column(name = "sessionIdHashed", nullable = false)
     private String sessionIdHashed;
 
     @Column(name = "sessionIdExpire")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     private Date sessionIdExpire;
 
     public Integer getId() {

@@ -47,7 +47,7 @@ public class UserService {
         return user.orElse(null);
     }
 
-    public SuccessMsgResponse signup(String account, String name, String password) {
+    public SuccessMsgResponse signup(String account, String password) {
         var user = userRepository.findByAccount(account);
 
         if (user.isPresent()) {
@@ -56,7 +56,6 @@ public class UserService {
 
         var createdUser = new User();
         createdUser.setAccount(account);
-        createdUser.setName(name);
         createdUser.setPwHashed(HashHelper.bCrypt(password));
 
         userRepository.save(createdUser);
@@ -82,7 +81,6 @@ public class UserService {
 
                 return new LoginResponse(
                         user.get().getAccount(),
-                        user.get().getName(),
                         accessId,
                         newSessionId
                 );
@@ -111,7 +109,6 @@ public class UserService {
 
             return new LoginResponse(
                     user.get().getAccount(),
-                    user.get().getName(),
                     accessId,
                     ""
             );
