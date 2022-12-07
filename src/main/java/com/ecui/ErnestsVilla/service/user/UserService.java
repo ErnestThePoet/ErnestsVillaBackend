@@ -1,4 +1,4 @@
-package com.ecui.ErnestsVilla.service;
+package com.ecui.ErnestsVilla.service.user;
 
 import com.ecui.ErnestsVilla.controller.common.response.SuccessMsgResponse;
 import com.ecui.ErnestsVilla.controller.user.response.LoginResponse;
@@ -57,6 +57,7 @@ public class UserService {
         var createdUser = new User();
         createdUser.setAccount(account);
         createdUser.setPwHashed(HashHelper.bCrypt(password));
+        createdUser.setSessionIdHashed("");
 
         userRepository.save(createdUser);
 
@@ -77,7 +78,7 @@ public class UserService {
                 String accessId = addAccessIdExpire(account);
 
                 // login is the time when we clean up expired accessIds
-                accessIdRepository.deleteByAccessIdExpireBefore(DateTimeHelper.getNow());
+                accessIdRepository.deleteByAccessIdExpireLessThan(DateTimeHelper.getNow());
 
                 return new LoginResponse(
                         user.get().getAccount(),
@@ -105,7 +106,7 @@ public class UserService {
             String accessId = addAccessIdExpire(user.get().getAccount());
 
             // login is the time when we clean up expired accessIds
-            accessIdRepository.deleteByAccessIdExpireBefore(DateTimeHelper.getNow());
+            accessIdRepository.deleteByAccessIdExpireLessThan(DateTimeHelper.getNow());
 
             return new LoginResponse(
                     user.get().getAccount(),

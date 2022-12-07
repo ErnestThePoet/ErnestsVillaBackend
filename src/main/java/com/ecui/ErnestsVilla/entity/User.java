@@ -15,9 +15,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name", nullable = false)
-    private String name;
-
     @Column(name = "account", nullable = false, unique = true)
     private String account;
 
@@ -28,8 +25,7 @@ public class User {
     private String sessionIdHashed;
 
     @Column(name = "sessionIdExpire")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
-    private Date sessionIdExpire;
+    private Long sessionIdExpire;
 
     public Integer getId() {
         return id;
@@ -37,14 +33,6 @@ public class User {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getAccount() {
@@ -71,11 +59,11 @@ public class User {
         this.sessionIdHashed = sessionIdHashed;
     }
 
-    public Date getSessionIdExpire() {
+    public Long getSessionIdExpire() {
         return sessionIdExpire;
     }
 
-    public void setSessionIdExpire(Date sessionIdExpire) {
+    public void setSessionIdExpire(Long sessionIdExpire) {
         this.sessionIdExpire = sessionIdExpire;
     }
 }

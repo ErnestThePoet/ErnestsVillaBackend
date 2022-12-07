@@ -5,30 +5,32 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DateTimeHelper {
-    private static final long MS_PER_HOUR=3600L*1000L;
-    private static final long MS_PER_DAY=86400L*1000L;
-    public static boolean isExpired(Date expire){
-        return expire.before(getNow());
-    }
-    public static Date getNow(){
-        return new Date();
+    private static final long MS_PER_HOUR = 3600L * 1000L;
+    private static final long MS_PER_DAY = 86400L * 1000L;
+
+    public static boolean isExpired(long expire) {
+        return expire < getNow();
     }
 
-    public static Date getSessionIdExpire(){
-        var sessionIdExpire= getNow();
-        return new Date(sessionIdExpire.getTime()+7L*MS_PER_DAY);
+    public static long getNow() {
+        return new Date().getTime();
     }
 
-    public static Date getAccessIdExpire(){
-        var accessIdExpire= getNow();
-        return new Date(accessIdExpire.getTime()+24L*MS_PER_HOUR);
+    public static long getSessionIdExpire() {
+        var sessionIdExpire = getNow();
+        return sessionIdExpire + 7L * MS_PER_DAY;
     }
 
-    public static String toDisplayString(Date date){
+    public static long getAccessIdExpire() {
+        var accessIdExpire = getNow();
+        return accessIdExpire + 24L * MS_PER_HOUR;
+    }
+
+    public static String toDisplayString(Date date) {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm").format(date);
     }
 
-    public static Date fromDisplayString(String s){
+    public static Date fromDisplayString(String s) {
         try {
             return new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(s);
         } catch (ParseException e) {

@@ -2,7 +2,7 @@ package com.ecui.ErnestsVilla.controller.user;
 
 import com.ecui.ErnestsVilla.controller.common.response.SuccessMsgResponse;
 import com.ecui.ErnestsVilla.controller.user.response.LoginResponse;
-import com.ecui.ErnestsVilla.service.UserService;
+import com.ecui.ErnestsVilla.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -6,7 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.Optional;
 
 @Repository
@@ -15,5 +14,5 @@ public interface AccessIdRepository extends CrudRepository<AccessId,Integer> {
     boolean existsByAccessIdHashed(String accessIdHashed);
     @Modifying
     @Transactional
-    void deleteByAccessIdExpireBefore(Date now);
+    void deleteByAccessIdExpireLessThan(Long now);
 }

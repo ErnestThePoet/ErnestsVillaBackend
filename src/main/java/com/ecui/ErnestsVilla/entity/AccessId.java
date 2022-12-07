@@ -1,58 +1,54 @@
 package com.ecui.ErnestsVilla.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
-@Table(name = "access_ids",indexes = {
-        @Index(columnList = "accessIdHashed",unique = true)
+@Table(name = "access_ids", indexes = {
+        @Index(columnList = "accessIdHashed", unique = true)
 })
 public class AccessId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "account",nullable = false)
+    @Column(name = "account", nullable = false)
     private String account;
 
-    @Column(name = "accessIdHashed",nullable = false)
+    @Column(name = "accessIdHashed", nullable = false)
     private String accessIdHashed;
 
-    @Column(name = "accessIdExpire",nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
-    private Date accessIdExpire;
+    @Column(name = "accessIdExpire", nullable = false)
+    private Long accessIdExpire;
 
-    public Integer getId(){
+    public Integer getId() {
         return this.id;
     }
 
-    public void setId(Integer id){
-        this.id=id;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getAccount(){
+    public String getAccount() {
         return this.account;
     }
 
-    public void setAccount(String account){
-        this.account=account;
+    public void setAccount(String account) {
+        this.account = account;
     }
 
-    public String getAccessIdHashed(){
+    public String getAccessIdHashed() {
         return this.accessIdHashed;
     }
 
-    public void setAccessIdHashed(String accessIdHashed){
-        this.accessIdHashed=accessIdHashed;
+    public void setAccessIdHashed(String accessIdHashed) {
+        this.accessIdHashed = accessIdHashed;
     }
 
-    public Date getAccessIdExpire(){
+    public Long getAccessIdExpire() {
         return this.accessIdExpire;
     }
 
-    public void setAccessIdExpire(Date accessIdExpire){
-        this.accessIdExpire=accessIdExpire;
+    public void setAccessIdExpire(Long accessIdExpire) {
+        this.accessIdExpire = accessIdExpire;
     }
 }
