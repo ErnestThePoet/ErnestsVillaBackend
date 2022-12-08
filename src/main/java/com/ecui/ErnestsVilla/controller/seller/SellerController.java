@@ -1,6 +1,7 @@
 package com.ecui.ErnestsVilla.controller.seller;
 
 import com.ecui.ErnestsVilla.controller.common.response.SuccessMsgResponse;
+import com.ecui.ErnestsVilla.controller.seller.response.UploadPreviewImageResponse;
 import com.ecui.ErnestsVilla.entity.Item;
 import com.ecui.ErnestsVilla.service.seller.SellerService;
 import com.ecui.ErnestsVilla.service.user.UserService;
@@ -19,22 +20,30 @@ public class SellerController {
 
     @Autowired
     private UserService userService;
+
+    @PostMapping(path = "/upload_preview_image")
+    public UploadPreviewImageResponse uploadPreviewImage(
+            @RequestParam MultipartFile previewImage) {
+        String previewImageFileName = sellerService.savePreviewImage(previewImage);
+        UploadPreviewImageResponse response = new UploadPreviewImageResponse();
+        response.setPreviewImageFileName(previewImageFileName);
+        return response;
+    }
+
     @PostMapping(path = "/publish")
     public SuccessMsgResponse publishItem(
             @RequestParam String accessId,
             @RequestParam String name,
             @RequestParam String description,
-            @RequestParam MultipartFile previewImage,
+            @RequestParam String previewImageFileName,
             @RequestParam Integer remaining,
-            @RequestParam Integer priceCents){
-        var user=userService.getUser(accessId);
-        if(user==null){
+            @RequestParam Integer priceCents) {
+        var user = userService.getUser(accessId);
+        if (user == null) {
             return new SuccessMsgResponse("accessId无效");
         }
 
-        String previewImageFileName=sellerService.savePreviewImage(previewImage);
-
-        Item item=new Item();
+        Item item = new Item();
         item.setDescription(description);
         item.setName(name);
         item.setPreviewImageFileName(previewImageFileName);
