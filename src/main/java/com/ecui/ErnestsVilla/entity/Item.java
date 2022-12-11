@@ -30,6 +30,9 @@ public class Item {
     @Column(name = "priceCents",nullable = false)
     private Integer priceCents;
 
+    @Column(name = "purchaseCount",nullable = false)
+    private Integer purchaseCount;
+
     public Integer getId() {
         return id;
     }
@@ -84,5 +87,13 @@ public class Item {
 
     public void setPriceCents(Integer priceCents) {
         this.priceCents = priceCents;
+    }
+
+    public Integer getPurchaseCount() {
+        return purchaseCount;
+    }
+
+    public void setPurchaseCount(Integer purchaseCount) {
+        this.purchaseCount = purchaseCount;
     }
 }

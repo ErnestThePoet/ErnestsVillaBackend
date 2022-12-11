@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping(path = "/seller")
 public class SellerController {
@@ -37,7 +39,7 @@ public class SellerController {
             @RequestParam String description,
             @RequestParam String previewImageFileName,
             @RequestParam Integer remaining,
-            @RequestParam Integer priceCents) {
+            @RequestParam String priceYuan) {
         var user = userService.getUser(accessId);
         if (user == null) {
             return new SuccessMsgResponse("accessId无效");
@@ -47,8 +49,10 @@ public class SellerController {
         item.setDescription(description);
         item.setName(name);
         item.setPreviewImageFileName(previewImageFileName);
-        item.setPriceCents(priceCents);
+        item.setPriceCents(
+                new BigDecimal(priceYuan).multiply(new BigDecimal(100)).intValue());
         item.setRemaining(remaining);
+        item.setPurchaseCount(0);
         item.setSellerAccount(user.getAccount());
 
         return sellerService.publishItem(item);

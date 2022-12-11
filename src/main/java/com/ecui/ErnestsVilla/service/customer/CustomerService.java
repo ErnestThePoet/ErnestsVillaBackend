@@ -19,21 +19,20 @@ public class CustomerService {
     @Autowired
     private PurchaseRepository purchaseRepository;
 
-    public ItemRecommendationResponse getItemRecommendations(Integer count){
-        var items=itemRepository.findAll();
-        count=Math.min(count,items.size());
+    public ItemRecommendationResponse getItemRecommendations(Integer count) {
+        var items = itemRepository.findAll();
+        count = Math.min(count, items.size());
         Collections.shuffle(items);
 
-        var recommendedItems=items.subList(0,count);
+        var recommendedItems = items.subList(0, count);
 
-        List<ItemRecommendation> recommendations=new ArrayList<>();
+        List<ItemRecommendation> recommendations = new ArrayList<>();
 
-        for(var i:recommendedItems){
-            var purchaseCount=purchaseRepository.countByItemId(i.getId());
-            recommendations.add(new ItemRecommendation(i,purchaseCount));
+        for (var i : recommendedItems) {
+            recommendations.add(new ItemRecommendation(i));
         }
 
-        ItemRecommendationResponse response=new ItemRecommendationResponse();
+        ItemRecommendationResponse response = new ItemRecommendationResponse();
         response.setRecommendations(recommendations);
 
         return response;
