@@ -4,4 +4,5 @@ import com.ecui.ErnestsVilla.entity.Purchase;
 import org.springframework.data.repository.CrudRepository;
 
 public interface PurchaseRepository extends CrudRepository<Purchase,Integer> {
+    Integer countByItemId(Integer itemId);
 }
