@@ -20,7 +20,7 @@ public class UserController {
         return userService.signup(account, password);
     }
 
-    @PostMapping(path = "/login")
+    @PutMapping(path = "/login")
     public LoginResponse login(
             @RequestParam String account,
             @RequestParam String password,
@@ -29,21 +29,21 @@ public class UserController {
         return userService.login(account, password, remember);
     }
 
-    @PostMapping(path = "/auto_login")
+    @PutMapping(path = "/auto_login")
     public LoginResponse autoLogin(
             @RequestParam String sessionId
     ) {
         return userService.autoLogin(sessionId);
     }
 
-    @PostMapping(path = "/logout")
+    @PutMapping(path = "/logout")
     public void logout(
             @RequestParam String sessionId
     ) {
         userService.logout(sessionId);
     }
 
-    @PostMapping(path = "/change_pw")
+    @PutMapping(path = "/change_pw")
     public SuccessMsgResponse changePw(
             @RequestParam String account,
             @RequestParam String password,
