@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ItemRepository extends CrudRepository<Item,Integer> {
     List<Item> findAll();
+    List<Item> findByNameLike(String keyword);
 }

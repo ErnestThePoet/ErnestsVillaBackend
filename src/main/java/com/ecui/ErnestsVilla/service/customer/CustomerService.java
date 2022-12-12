@@ -1,7 +1,8 @@
 package com.ecui.ErnestsVilla.service.customer;
 
 import com.ecui.ErnestsVilla.controller.customer.response.ItemRecommendationResponse;
-import com.ecui.ErnestsVilla.controller.customer.response.objs.ItemRecommendation;
+import com.ecui.ErnestsVilla.controller.common.objs.SingleItemPreview;
+import com.ecui.ErnestsVilla.controller.customer.response.ItemSearchResponse;
 import com.ecui.ErnestsVilla.dao.ItemRepository;
 import com.ecui.ErnestsVilla.dao.PurchaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +27,30 @@ public class CustomerService {
 
         var recommendedItems = items.subList(0, count);
 
-        List<ItemRecommendation> recommendations = new ArrayList<>();
+        List<SingleItemPreview> recommendations = new ArrayList<>();
 
         for (var i : recommendedItems) {
-            recommendations.add(new ItemRecommendation(i));
+            recommendations.add(new SingleItemPreview(i));
         }
 
         ItemRecommendationResponse response = new ItemRecommendationResponse();
         response.setRecommendations(recommendations);
+
+        return response;
+    }
+
+    public ItemSearchResponse searchItems(String keyword){
+        var items=itemRepository.findByNameLike("%%%s%%".formatted(keyword));
+
+        List<SingleItemPreview> results=new ArrayList<>();
+
+        for(var i:items){
+            results.add(new SingleItemPreview(i));
+        }
+
+        ItemSearchResponse response=new ItemSearchResponse();
+
+        response.setResults(results);
 
         return response;
     }
