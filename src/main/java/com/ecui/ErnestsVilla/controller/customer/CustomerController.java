@@ -1,5 +1,6 @@
 package com.ecui.ErnestsVilla.controller.customer;
 
+import com.ecui.ErnestsVilla.controller.customer.response.GetItemDetailResponse;
 import com.ecui.ErnestsVilla.controller.customer.response.ItemRecommendationResponse;
 import com.ecui.ErnestsVilla.controller.customer.response.ItemSearchResponse;
 import com.ecui.ErnestsVilla.service.customer.CustomerService;
@@ -37,5 +38,18 @@ public class CustomerController {
         }
 
         return customerService.searchItems(keyword);
+    }
+
+    @GetMapping(path = "/get_item_detail")
+    public GetItemDetailResponse getItemDetail(
+            @RequestParam String accessId,
+            @RequestParam Integer itemId
+    ){
+        var user=userService.getUser(accessId);
+        if(user==null){
+            return new GetItemDetailResponse("accessId无效");
+        }
+
+        return customerService.getItemDetail(itemId);
     }
 }

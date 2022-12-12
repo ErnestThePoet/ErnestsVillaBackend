@@ -1,5 +1,7 @@
 package com.ecui.ErnestsVilla.service.customer;
 
+import com.ecui.ErnestsVilla.controller.common.objs.SingleItemDetail;
+import com.ecui.ErnestsVilla.controller.customer.response.GetItemDetailResponse;
 import com.ecui.ErnestsVilla.controller.customer.response.ItemRecommendationResponse;
 import com.ecui.ErnestsVilla.controller.common.objs.SingleItemPreview;
 import com.ecui.ErnestsVilla.controller.customer.response.ItemSearchResponse;
@@ -51,6 +53,20 @@ public class CustomerService {
         ItemSearchResponse response=new ItemSearchResponse();
 
         response.setResults(results);
+
+        return response;
+    }
+
+    public GetItemDetailResponse getItemDetail(Integer itemId){
+        var itemOptional=itemRepository.findById(itemId);
+        if(itemOptional.isEmpty()){
+            return new GetItemDetailResponse("商品不存在");
+        }
+
+        SingleItemDetail detail=new SingleItemDetail(itemOptional.get());
+
+        GetItemDetailResponse response=new GetItemDetailResponse();
+        response.setItemDetail(detail);
 
         return response;
     }
