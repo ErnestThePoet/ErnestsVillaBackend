@@ -21,6 +21,15 @@ public class Purchase {
     @Column(name = "itemId",nullable = false)
     private Integer itemId;
 
+    @Column(name = "count",nullable = false)
+    private Integer count;
+
+    @Column(name = "paymentCents",nullable = false)
+    private Integer paymentCents;
+
+    @Column(name = "purchaseTime",nullable = false)
+    private Long purchaseTime;
+
     public Integer getId() {
         return id;
     }
@@ -69,9 +78,11 @@ public class Purchase {
         this.purchaseTime = purchaseTime;
     }
 
-    @Column(name = "paymentCents",nullable = false)
-    private Integer paymentCents;
+    public Integer getCount() {
+        return count;
+    }
 
-    @Column(name = "purchaseTime",nullable = false)
-    private Long purchaseTime;
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 }
