@@ -5,14 +5,13 @@ import com.ecui.ErnestsVilla.controller.seller.response.UploadPreviewImageRespon
 import com.ecui.ErnestsVilla.entity.Item;
 import com.ecui.ErnestsVilla.service.seller.SellerService;
 import com.ecui.ErnestsVilla.service.user.UserService;
+import com.ecui.ErnestsVilla.utils.CurrencyHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.math.BigDecimal;
 
 @RestController
 @RequestMapping(path = "/seller")
@@ -49,8 +48,7 @@ public class SellerController {
         item.setDescription(description);
         item.setName(name);
         item.setPreviewImageFileName(previewImageFileName);
-        item.setPriceCents(
-                new BigDecimal(priceYuan).multiply(new BigDecimal(100)).intValue());
+        item.setPriceCents(CurrencyHelper.getCentsFromYuan(priceYuan));
         item.setRemaining(remaining);
         item.setPurchaseCount(0);
         item.setSellerAccount(user.getAccount());

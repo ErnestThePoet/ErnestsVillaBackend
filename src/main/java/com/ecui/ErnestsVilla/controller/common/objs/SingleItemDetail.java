@@ -1,6 +1,7 @@
 package com.ecui.ErnestsVilla.controller.common.objs;
 
 import com.ecui.ErnestsVilla.entity.Item;
+import com.ecui.ErnestsVilla.utils.CurrencyHelper;
 import lombok.Data;
 
 @Data
@@ -11,7 +12,7 @@ public class SingleItemDetail {
     private String description;
     private String previewImageFileName;
     private Integer remaining;
-    private Integer priceCents;
+    private String priceYuan;
     private Integer purchaseCount;
 
     public SingleItemDetail(Item item) {
@@ -21,7 +22,7 @@ public class SingleItemDetail {
         this.description = item.getDescription();
         this.previewImageFileName = item.getPreviewImageFileName();
         this.remaining = item.getRemaining();
-        this.priceCents = item.getPriceCents();
+        this.priceYuan = CurrencyHelper.getYuanFromCents(item.getPriceCents());
         this.purchaseCount = item.getPurchaseCount();
     }
 }
