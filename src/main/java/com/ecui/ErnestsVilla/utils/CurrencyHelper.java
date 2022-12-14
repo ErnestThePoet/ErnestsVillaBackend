@@ -8,7 +8,7 @@ public class CurrencyHelper {
     private static final DecimalFormat format=new DecimalFormat("0.00");
     public static String getYuanFromCents(int cents){
         return format.format(
-                new BigDecimal(cents).divide(new BigDecimal(100), RoundingMode.UNNECESSARY));
+                new BigDecimal(cents).divide(new BigDecimal(100)));
     }
 
     public static int getCentsFromYuan(String yuan){

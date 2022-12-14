@@ -32,7 +32,7 @@ public class CustomerController {
             @RequestParam String accessId,
             @RequestParam String keyword
     ){
-        var user=userService.getUser(accessId);
+        var user=userService.getUserWithAccessId(accessId);
         if(user==null){
             return new ItemSearchResponse("accessId无效");
         }
@@ -45,7 +45,7 @@ public class CustomerController {
             @RequestParam String accessId,
             @RequestParam Integer itemId
     ){
-        var user=userService.getUser(accessId);
+        var user=userService.getUserWithAccessId(accessId);
         if(user==null){
             return new GetItemDetailResponse("accessId无效");
         }

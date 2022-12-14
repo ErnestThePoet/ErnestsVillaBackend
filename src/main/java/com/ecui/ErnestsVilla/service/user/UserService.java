@@ -27,8 +27,8 @@ public class UserService {
     }
 
 
-    // returns null if invalid accessId or level unsatisfied
-    public User getUser(String accessId) {
+    // returns null if invalid accessId
+    public User getUserWithAccessId(String accessId) {
         if (accessId == null) {
             return null;
         }

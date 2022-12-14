@@ -7,10 +7,7 @@ import com.ecui.ErnestsVilla.service.seller.SellerService;
 import com.ecui.ErnestsVilla.service.user.UserService;
 import com.ecui.ErnestsVilla.utils.CurrencyHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -39,7 +36,7 @@ public class SellerController {
             @RequestParam String previewImageFileName,
             @RequestParam Integer remaining,
             @RequestParam String priceYuan) {
-        var user = userService.getUser(accessId);
+        var user = userService.getUserWithAccessId(accessId);
         if (user == null) {
             return new SuccessMsgResponse("accessId无效");
         }
@@ -54,5 +51,44 @@ public class SellerController {
         item.setSellerAccount(user.getAccount());
 
         return sellerService.publishItem(item);
+    }
+
+    @PutMapping(path = "/update")
+    public SuccessMsgResponse updateItem(
+            @RequestParam String accessId,
+            @RequestParam Integer itemId,
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam String previewImageFileName,
+            @RequestParam Integer remaining,
+            @RequestParam String priceYuan
+    ){
+        var user = userService.getUserWithAccessId(accessId);
+        if (user == null) {
+            return new SuccessMsgResponse("accessId无效");
+        }
+
+        Item item = new Item();
+        item.setId(itemId);
+        item.setDescription(description);
+        item.setName(name);
+        item.setPreviewImageFileName(previewImageFileName);
+        item.setPriceCents(CurrencyHelper.getCentsFromYuan(priceYuan));
+        item.setRemaining(remaining);
+
+        return sellerService.updateItem(user,item);
+    }
+
+    @DeleteMapping(path = "/delete")
+    public SuccessMsgResponse deleteItem(
+            @RequestParam String accessId,
+            @RequestParam Integer itemId
+    ){
+        var user = userService.getUserWithAccessId(accessId);
+        if (user == null) {
+            return new SuccessMsgResponse("accessId无效");
+        }
+
+        return sellerService.deleteItem(user,itemId);
     }
 }
