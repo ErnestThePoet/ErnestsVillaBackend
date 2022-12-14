@@ -78,10 +78,16 @@ public class UserService {
             String bank1Account,
             String bank2Account,
             String password) {
-        var user = userRepository.findByAccount(account);
-
-        if (user.isPresent()) {
+        if (userRepository.existsByAccount(account)) {
             return new SuccessMsgResponse("账号已存在");
+        }
+
+        if (userRepository.existsByBank1Account(bank1Account)) {
+            return new SuccessMsgResponse("YYH Bank银行账号已被其他账号绑定");
+        }
+
+        if (userRepository.existsByBank2Account(bank2Account)) {
+            return new SuccessMsgResponse("HIT Bank银行账号已被其他账号绑定");
         }
 
         var createdUser = new User();
