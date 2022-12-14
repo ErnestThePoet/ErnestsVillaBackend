@@ -6,6 +6,7 @@ import com.ecui.ErnestsVilla.dao.AccessIdRepository;
 import com.ecui.ErnestsVilla.dao.UserRepository;
 import com.ecui.ErnestsVilla.entity.AccessId;
 import com.ecui.ErnestsVilla.entity.User;
+import com.ecui.ErnestsVilla.service.objs.Validity;
 import com.ecui.ErnestsVilla.utils.DateTimeHelper;
 import com.ecui.ErnestsVilla.utils.HashHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,31 @@ public class UserService {
 
     @Autowired
     private AccessIdRepository accessIdRepository;
+
+    private Validity checkUserValidity(User user, String password) {
+        if (user.getAccount() == null
+                || user.getAccount().length() < 3
+                || user.getAccount().length() > 10
+                || !user.getAccount().matches("^[\\da-zA-Z_-]+$")) {
+            return new Validity("登录账号非法");
+        }
+
+        if (password == null
+                || password.length() < 5
+                || password.length() > 15) {
+            return new Validity("登录密码非法");
+        }
+
+        if (user.getBank1Account() == null) {
+            return new Validity("银行1账户不能为空");
+        }
+
+        if (user.getBank2Account() == null) {
+            return new Validity("银行2账户不能为空");
+        }
+
+        return new Validity();
+    }
 
     public boolean checkPw(User user, String password) {
         return HashHelper.checkBCrypt(password, user.getPwHashed());
@@ -47,7 +73,11 @@ public class UserService {
         return user.orElse(null);
     }
 
-    public SuccessMsgResponse signup(String account, String password) {
+    public SuccessMsgResponse signup(
+            String account,
+            String bank1Account,
+            String bank2Account,
+            String password) {
         var user = userRepository.findByAccount(account);
 
         if (user.isPresent()) {
@@ -56,8 +86,16 @@ public class UserService {
 
         var createdUser = new User();
         createdUser.setAccount(account);
+        createdUser.setBank1Account(bank1Account);
+        createdUser.setBank2Account(bank2Account);
         createdUser.setPwHashed(HashHelper.bCrypt(password));
         createdUser.setSessionIdHashed("");
+
+        var validity = checkUserValidity(createdUser, password);
+
+        if (!validity.isValid()) {
+            return new SuccessMsgResponse(validity.message());
+        }
 
         userRepository.save(createdUser);
 

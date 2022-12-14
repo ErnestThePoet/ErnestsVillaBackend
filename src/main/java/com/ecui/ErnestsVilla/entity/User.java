@@ -1,13 +1,12 @@
 package com.ecui.ErnestsVilla.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "users", indexes = {
         @Index(columnList = "account", unique = true),
+        @Index(columnList = "bank1Account", unique = true),
+        @Index(columnList = "bank2Account", unique = true),
         @Index(columnList = "sessionIdHashed")
 })
 public class User {
@@ -17,6 +16,12 @@ public class User {
 
     @Column(name = "account", nullable = false, unique = true)
     private String account;
+
+    @Column(name = "bank1Account", nullable = false, unique = true)
+    private String bank1Account;
+
+    @Column(name = "bank2Account", nullable = false, unique = true)
+    private String bank2Account;
 
     @Column(name = "pwHashed", nullable = false)
     private String pwHashed;
@@ -61,6 +66,22 @@ public class User {
 
     public Long getSessionIdExpire() {
         return sessionIdExpire;
+    }
+
+    public String getBank1Account() {
+        return bank1Account;
+    }
+
+    public void setBank1Account(String bank1Account) {
+        this.bank1Account = bank1Account;
+    }
+
+    public String getBank2Account() {
+        return bank2Account;
+    }
+
+    public void setBank2Account(String bank2Account) {
+        this.bank2Account = bank2Account;
     }
 
     public void setSessionIdExpire(Long sessionIdExpire) {

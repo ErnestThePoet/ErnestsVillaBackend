@@ -15,9 +15,15 @@ public class UserController {
     @PostMapping(path = "/signup")
     public SuccessMsgResponse signup(
             @RequestParam String account,
+            @RequestParam String bank1Account,
+            @RequestParam String bank2Account,
             @RequestParam String password
     ) {
-        return userService.signup(account, password);
+        return userService.signup(
+                account,
+                bank1Account,
+                bank2Account,
+                password);
     }
 
     @PutMapping(path = "/login")
