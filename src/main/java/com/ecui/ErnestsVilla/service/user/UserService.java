@@ -125,7 +125,7 @@ public class UserService {
                 accessIdRepository.deleteByAccessIdExpireLessThan(DateTimeHelper.getNow());
 
                 return new LoginResponse(
-                        user.get().getAccount(),
+                        user.get(),
                         accessId,
                         newSessionId
                 );
@@ -153,7 +153,7 @@ public class UserService {
             accessIdRepository.deleteByAccessIdExpireLessThan(DateTimeHelper.getNow());
 
             return new LoginResponse(
-                    user.get().getAccount(),
+                    user.get(),
                     accessId,
                     ""
             );
