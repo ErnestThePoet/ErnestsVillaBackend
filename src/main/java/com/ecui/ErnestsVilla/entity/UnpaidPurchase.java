@@ -3,11 +3,10 @@ package com.ecui.ErnestsVilla.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "purchases",indexes = {
-        @Index(columnList = "customerAccount"),
-        @Index(columnList = "sellerAccount")
+@Table(name = "unpaid_purchases",indexes = {
+        @Index(columnList = "customerAccount")
 })
-public class Purchase {
+public class UnpaidPurchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -30,8 +29,11 @@ public class Purchase {
     @Column(name = "address",nullable = false)
     private String address;
 
-    @Column(name = "purchaseTime",nullable = false)
-    private Long purchaseTime;
+    @Column(name = "createTime",nullable = false)
+    private Long createTime;
+
+    @Column(name = "expireTime",nullable = false)
+    private Long expireTime;
 
     public Integer getId() {
         return id;
@@ -73,10 +75,6 @@ public class Purchase {
         this.paymentCents = paymentCents;
     }
 
-    public Long getPurchaseTime() {
-        return purchaseTime;
-    }
-
     public String getAddress() {
         return address;
     }
@@ -85,8 +83,20 @@ public class Purchase {
         this.address = address;
     }
 
-    public void setPurchaseTime(Long purchaseTime) {
-        this.purchaseTime = purchaseTime;
+    public Long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Long createTime) {
+        this.createTime = createTime;
+    }
+
+    public Long getExpireTime() {
+        return expireTime;
+    }
+
+    public void setExpireTime(Long expireTime) {
+        this.expireTime = expireTime;
     }
 
     public Integer getCount() {
