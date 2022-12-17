@@ -26,8 +26,38 @@ public class UnpaidPurchase {
     @Column(name = "paymentCents",nullable = false)
     private Integer paymentCents;
 
-    @Column(name = "address",nullable = false)
-    private String address;
+    @Column(name = "consigneeAddress",nullable = false)
+    private String consigneeAddress;
+
+    @Column(name = "consigneeName",nullable = false)
+    private String consigneeName;
+
+    @Column(name = "consigneePhoneNumber",nullable = false)
+    private String consigneePhoneNumber;
+
+    public String getConsigneeAddress() {
+        return consigneeAddress;
+    }
+
+    public void setConsigneeAddress(String consigneeAddress) {
+        this.consigneeAddress = consigneeAddress;
+    }
+
+    public String getConsigneeName() {
+        return consigneeName;
+    }
+
+    public void setConsigneeName(String consigneeName) {
+        this.consigneeName = consigneeName;
+    }
+
+    public String getConsigneePhoneNumber() {
+        return consigneePhoneNumber;
+    }
+
+    public void setConsigneePhoneNumber(String consigneePhoneNumber) {
+        this.consigneePhoneNumber = consigneePhoneNumber;
+    }
 
     @Column(name = "createTime",nullable = false)
     private Long createTime;
@@ -73,14 +103,6 @@ public class UnpaidPurchase {
 
     public void setPaymentCents(Integer paymentCents) {
         this.paymentCents = paymentCents;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public Long getCreateTime() {
