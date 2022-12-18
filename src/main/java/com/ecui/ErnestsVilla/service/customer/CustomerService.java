@@ -4,6 +4,7 @@ import com.ecui.ErnestsVilla.controller.common.objs.SingleItemDetail;
 import com.ecui.ErnestsVilla.controller.common.objs.SingleItemPurchaseWish;
 import com.ecui.ErnestsVilla.controller.common.response.SuccessMsgResponse;
 import com.ecui.ErnestsVilla.controller.customer.request.objs.SingleItemOrderBrief;
+import com.ecui.ErnestsVilla.controller.customer.request.objs.SingleSellerPayment;
 import com.ecui.ErnestsVilla.controller.customer.response.*;
 import com.ecui.ErnestsVilla.controller.common.objs.SingleItemPreview;
 import com.ecui.ErnestsVilla.dao.CartItemRepository;
@@ -17,10 +18,7 @@ import com.ecui.ErnestsVilla.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CustomerService {
@@ -173,8 +171,27 @@ public class CustomerService {
 
         int totalPriceCents = 0;
 
+        Map<String, Integer> sellerTotalPriceCents = new HashMap<>();
+
         for (var i : unpaidPurchases) {
             totalPriceCents += i.getPaymentCents();
+            if (sellerTotalPriceCents.containsKey(i.getSellerAccount())) {
+                sellerTotalPriceCents.put(
+                        i.getSellerAccount(),
+                        sellerTotalPriceCents.get(i.getSellerAccount()) + i.getPaymentCents());
+            } else {
+                sellerTotalPriceCents.put(i.getSellerAccount(), i.getPaymentCents());
+            }
+        }
+
+        List<SingleSellerPayment> sellerPayments = new ArrayList<>();
+
+        for (var i : sellerTotalPriceCents.entrySet()) {
+            var sellerPayment = new SingleSellerPayment();
+            sellerPayment.setSellerAccount(i.getKey());
+            sellerPayment.setTotalPriceCents(i.getValue());
+            sellerPayment.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(i.getValue()));
+            sellerPayments.add(sellerPayment);
         }
 
         var response = new GetUnpaidPurchaseResponse();
@@ -183,6 +200,7 @@ public class CustomerService {
         response.setPurchaseId(unpaidPurchases.get(0).getPurchaseId());
         response.setTotalPriceCents(totalPriceCents);
         response.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(totalPriceCents));
+        response.setSellerPayments(sellerPayments);
 
         return response;
     }
@@ -264,7 +282,31 @@ public class CustomerService {
                 isFirstSave = false;
             }
 
+            unpaidPurchases.add(unpaidPurchase);
+
             totalPriceCents += currentItemTotalPriceCents;
+        }
+
+        Map<String, Integer> sellerTotalPriceCents = new HashMap<>();
+
+        for (var i : unpaidPurchases) {
+            if (sellerTotalPriceCents.containsKey(i.getSellerAccount())) {
+                sellerTotalPriceCents.put(
+                        i.getSellerAccount(),
+                        sellerTotalPriceCents.get(i.getSellerAccount()) + i.getPaymentCents());
+            } else {
+                sellerTotalPriceCents.put(i.getSellerAccount(), i.getPaymentCents());
+            }
+        }
+
+        List<SingleSellerPayment> sellerPayments = new ArrayList<>();
+
+        for (var i : sellerTotalPriceCents.entrySet()) {
+            var sellerPayment = new SingleSellerPayment();
+            sellerPayment.setSellerAccount(i.getKey());
+            sellerPayment.setTotalPriceCents(i.getValue());
+            sellerPayment.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(i.getValue()));
+            sellerPayments.add(sellerPayment);
         }
 
         var response = new CreateOrderResponse();
@@ -272,6 +314,7 @@ public class CustomerService {
         response.setPurchaseId(purchaseId);
         response.setTotalPriceCents(totalPriceCents);
         response.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(totalPriceCents));
+        response.setSellerPayments(sellerPayments);
 
         return response;
     }
@@ -291,41 +334,41 @@ public class CustomerService {
             String timeStamp,
             String pimdBase64,
             String dsBase64
-    ){
-        var unpaidPurchases=unpaidPurchaseRepository
-                .findByCustomerAccountAndPurchaseId(customerAccount,purchaseId);
-        if(unpaidPurchases.size()==0){
+    ) {
+        var unpaidPurchases = unpaidPurchaseRepository
+                .findByCustomerAccountAndPurchaseId(customerAccount, purchaseId);
+        if (unpaidPurchases.size() == 0) {
             return new SuccessMsgResponse("订单不存在");
         }
 
-        byte[] oimd= HashHelper.sha256(timeStamp+purchaseId.toString());
-        byte[] pimd= Base64.getDecoder().decode(pimdBase64);
+        byte[] oimd = HashHelper.sha256(timeStamp + purchaseId.toString());
+        byte[] pimd = Base64.getDecoder().decode(pimdBase64);
 
-        byte[] pomd= HashHelper.sha256(ByteArrayUtil.concat(pimd,oimd));
+        byte[] pomd = HashHelper.sha256(ByteArrayUtil.concat(pimd, oimd));
 
-        if(!ByteArrayUtil.equals(pomd,Base64.getDecoder().decode(dsBase64))){
+        if (!ByteArrayUtil.equals(pomd, Base64.getDecoder().decode(dsBase64))) {
             return new SuccessMsgResponse("双重签名验证失败");
         }
 
-        unpaidPurchaseRepository.deleteByCustomerAccountAndPurchaseId(customerAccount,purchaseId);
+        unpaidPurchaseRepository.deleteByCustomerAccountAndPurchaseId(customerAccount, purchaseId);
 
-        long purchaseTime=DateTimeHelper.getNow();
+        long purchaseTime = DateTimeHelper.getNow();
 
-        List<Purchase> purchases=new ArrayList<>();
+        List<Purchase> purchases = new ArrayList<>();
 
-        for(var i:unpaidPurchases){
-            purchases.add(new Purchase(i,purchaseTime));
+        for (var i : unpaidPurchases) {
+            purchases.add(new Purchase(i, purchaseTime));
 
-            var itemOptional=itemRepository.findById(i.getItemId());
+            var itemOptional = itemRepository.findById(i.getItemId());
 
             // When this happens, the seller would be informed about this paid order
-            if(itemOptional.isEmpty()){
+            if (itemOptional.isEmpty()) {
                 continue;
             }
 
-            var item=itemOptional.get();
+            var item = itemOptional.get();
 
-            item.setPurchaseCount(item.getPurchaseCount()+i.getCount());
+            item.setPurchaseCount(item.getPurchaseCount() + i.getCount());
 
             itemRepository.save(item);
         }
