@@ -1,6 +1,7 @@
 package com.ecui.ErnestsVilla.controller.customer;
 
 import com.ecui.ErnestsVilla.controller.common.response.SuccessMsgResponse;
+import com.ecui.ErnestsVilla.controller.customer.request.CreateOrderRequest;
 import com.ecui.ErnestsVilla.controller.customer.response.*;
 import com.ecui.ErnestsVilla.service.customer.CustomerService;
 import com.ecui.ErnestsVilla.service.user.UserService;
@@ -113,5 +114,22 @@ public class CustomerController {
         }
 
         return customerService.clearUserCart(user.getAccount());
+    }
+
+    @PostMapping(path = "/create_order")
+    public CreateOrderResponse createOrder(@RequestBody CreateOrderRequest request){
+        var user = userService.getUserWithAccessId(request.getAccessId());
+
+        if (user == null) {
+            return new CreateOrderResponse("accessId无效");
+        }
+
+        return customerService.createOrder(
+                user.getAccount(),
+                request.getItems(),
+                request.getConsigneeName(),
+                request.getConsigneeAddress(),
+                request.getConsigneePhoneNumber()
+        );
     }
 }

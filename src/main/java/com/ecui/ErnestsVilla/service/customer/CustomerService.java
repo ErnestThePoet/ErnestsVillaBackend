@@ -3,12 +3,18 @@ package com.ecui.ErnestsVilla.service.customer;
 import com.ecui.ErnestsVilla.controller.common.objs.SingleItemDetail;
 import com.ecui.ErnestsVilla.controller.common.objs.SingleItemPurchaseWish;
 import com.ecui.ErnestsVilla.controller.common.response.SuccessMsgResponse;
+import com.ecui.ErnestsVilla.controller.customer.request.objs.SingleItemOrderBrief;
 import com.ecui.ErnestsVilla.controller.customer.response.*;
 import com.ecui.ErnestsVilla.controller.common.objs.SingleItemPreview;
 import com.ecui.ErnestsVilla.dao.CartItemRepository;
 import com.ecui.ErnestsVilla.dao.ItemRepository;
 import com.ecui.ErnestsVilla.dao.PurchaseRepository;
+import com.ecui.ErnestsVilla.dao.UnpaidPurchaseRepository;
 import com.ecui.ErnestsVilla.entity.CartItem;
+import com.ecui.ErnestsVilla.entity.UnpaidPurchase;
+import com.ecui.ErnestsVilla.utils.CurrencyHelper;
+import com.ecui.ErnestsVilla.utils.DateTimeHelper;
+import com.ecui.ErnestsVilla.utils.ItemHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +27,8 @@ public class CustomerService {
     @Autowired
     private ItemRepository itemRepository;
 
+    @Autowired
+    private UnpaidPurchaseRepository unpaidPurchaseRepository;
     @Autowired
     private PurchaseRepository purchaseRepository;
     @Autowired
@@ -153,5 +161,94 @@ public class CustomerService {
     public SuccessMsgResponse clearUserCart(String account) {
         cartItemRepository.deleteByCustomerAccount(account);
         return new SuccessMsgResponse();
+    }
+
+    private String getSorryMessage(String itemName, String sorryContent) {
+        return "很抱歉，您选择的商品【%s】%s".formatted(
+                ItemHelper.getShortItemName(itemName), sorryContent);
+    }
+
+    private String getSorryMessage(int itemId, String sorryContent) {
+        return "很抱歉，您选择的ID为【%d】的商品%s".formatted(itemId, sorryContent);
+    }
+
+    private long getUnpaidPurchaseExpire(long now) {
+        return now + 15 * DateTimeHelper.MS_PER_MIN;
+    }
+
+    public CreateOrderResponse createOrder(
+            String customerAccount,
+            List<SingleItemOrderBrief> items,
+            String consigneeName,
+            String consigneeAddress,
+            String consigneePhoneNumber) {
+        if (unpaidPurchaseRepository.existsByCustomerAccount(customerAccount)) {
+            return new CreateOrderResponse("您尚有未支付的订单");
+        }
+
+        List<UnpaidPurchase> unpaidPurchases = new ArrayList<>();
+
+        Integer purchaseId = 0;
+        int totalPriceCents = 0;
+
+        long now = DateTimeHelper.getNow();
+        long expireTime = getUnpaidPurchaseExpire(now);
+
+        boolean isFirstSave = true;
+        for (var i : items) {
+            var itemOptional = itemRepository.findById(i.getItemId());
+
+            if (itemOptional.isEmpty()) {
+                return new CreateOrderResponse(
+                        getSorryMessage(i.getItemId(), "不存在"));
+            }
+
+            var item = itemOptional.get();
+
+            if (item.getRemaining() < i.getCount()) {
+                return new CreateOrderResponse(
+                        getSorryMessage(item.getName(), "库存数量不足"));
+            }
+
+            item.setRemaining(item.getRemaining() - i.getCount());
+
+            itemRepository.save(item);
+
+            int currentItemTotalPriceCents = item.getPriceCents() * i.getCount();
+
+            UnpaidPurchase unpaidPurchase = new UnpaidPurchase();
+            unpaidPurchase.setConsigneeAddress(consigneeAddress);
+            unpaidPurchase.setConsigneeName(consigneeName);
+            unpaidPurchase.setConsigneePhoneNumber(consigneePhoneNumber);
+            unpaidPurchase.setCount(i.getCount());
+            unpaidPurchase.setCreateTime(now);
+            unpaidPurchase.setCustomerAccount(customerAccount);
+            unpaidPurchase.setExpireTime(expireTime);
+            unpaidPurchase.setItemId(i.getItemId());
+            unpaidPurchase.setPaymentCents(currentItemTotalPriceCents);
+            if (!isFirstSave) {
+                unpaidPurchase.setPurchaseId(purchaseId);
+            }
+            unpaidPurchase.setSellerAccount(item.getSellerAccount());
+
+            unpaidPurchaseRepository.save(unpaidPurchase);
+
+            if (isFirstSave) {
+                purchaseId = unpaidPurchase.getId();
+                unpaidPurchase.setPurchaseId(purchaseId);
+                unpaidPurchaseRepository.save(unpaidPurchase);
+                isFirstSave = false;
+            }
+
+            totalPriceCents += currentItemTotalPriceCents;
+        }
+
+        var response = new CreateOrderResponse();
+        response.setExpireTime(expireTime);
+        response.setPurchaseId(purchaseId);
+        response.setTotalPriceCents(totalPriceCents);
+        response.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(totalPriceCents));
+
+        return response;
     }
 }

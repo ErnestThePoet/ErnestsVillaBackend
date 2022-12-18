@@ -5,12 +5,16 @@ import javax.persistence.*;
 @Entity
 @Table(name = "purchases",indexes = {
         @Index(columnList = "customerAccount"),
-        @Index(columnList = "sellerAccount")
+        @Index(columnList = "sellerAccount"),
+        @Index(columnList = "purchaseId")
 })
 public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(name = "purchaseId",nullable = false)
+    private Integer purchaseId;
 
     @Column(name = "customerAccount",nullable = false)
     private String customerAccount;
@@ -32,6 +36,14 @@ public class Purchase {
 
     @Column(name = "consigneeName",nullable = false)
     private String consigneeName;
+
+    public Integer getPurchaseId() {
+        return purchaseId;
+    }
+
+    public void setPurchaseId(Integer purchaseId) {
+        this.purchaseId = purchaseId;
+    }
 
     @Column(name = "consigneePhoneNumber",nullable = false)
     private String consigneePhoneNumber;

@@ -4,12 +4,17 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "unpaid_purchases",indexes = {
-        @Index(columnList = "customerAccount")
+        @Index(columnList = "customerAccount"),
+        @Index(columnList = "expireTime"),
+        @Index(columnList = "purchaseId")
 })
 public class UnpaidPurchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(name = "purchaseId",nullable = false)
+    private Integer purchaseId;
 
     @Column(name = "customerAccount",nullable = false)
     private String customerAccount;
@@ -53,6 +58,14 @@ public class UnpaidPurchase {
 
     public String getConsigneePhoneNumber() {
         return consigneePhoneNumber;
+    }
+
+    public Integer getPurchaseId() {
+        return purchaseId;
+    }
+
+    public void setPurchaseId(Integer purchaseId) {
+        this.purchaseId = purchaseId;
     }
 
     public void setConsigneePhoneNumber(String consigneePhoneNumber) {
