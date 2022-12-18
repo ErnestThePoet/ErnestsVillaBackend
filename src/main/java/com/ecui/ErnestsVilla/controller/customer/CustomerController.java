@@ -180,4 +180,15 @@ public class CustomerController {
                 ds
         );
     }
+
+    @GetMapping(path = "/get_purchases")
+    public GetPurchaseResponse getPurchase(@RequestParam String accessId){
+        var user = userService.getUserWithAccessId(accessId);
+
+        if (user == null) {
+            return new GetPurchaseResponse("accessId无效");
+        }
+
+        return customerService.getPurchase(user.getAccount());
+    }
 }

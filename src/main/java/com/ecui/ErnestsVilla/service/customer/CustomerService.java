@@ -7,6 +7,7 @@ import com.ecui.ErnestsVilla.controller.customer.request.objs.SingleItemOrderBri
 import com.ecui.ErnestsVilla.controller.customer.request.objs.SingleSellerPayment;
 import com.ecui.ErnestsVilla.controller.customer.response.*;
 import com.ecui.ErnestsVilla.controller.common.objs.SingleItemPreview;
+import com.ecui.ErnestsVilla.controller.customer.response.objs.SinglePurchasedItemDetail;
 import com.ecui.ErnestsVilla.dao.CartItemRepository;
 import com.ecui.ErnestsVilla.dao.ItemRepository;
 import com.ecui.ErnestsVilla.dao.PurchaseRepository;
@@ -378,5 +379,28 @@ public class CustomerService {
         purchaseRepository.saveAll(purchases);
 
         return new SuccessMsgResponse();
+    }
+
+    public GetPurchaseResponse getPurchase(String customerAccount){
+        List<SinglePurchasedItemDetail> purchasedItemDetails=new ArrayList<>();
+
+        var purchases=purchaseRepository.findByCustomerAccount(customerAccount);
+
+        for(var i:purchases){
+            var itemOptional=itemRepository.findById(i.getItemId());
+            if(itemOptional.isEmpty()){
+                purchasedItemDetails.add(new SinglePurchasedItemDetail(i));
+                continue;
+            }
+
+            var item=itemOptional.get();
+
+            purchasedItemDetails.add(new SinglePurchasedItemDetail(i,item));
+        }
+
+        var response=new GetPurchaseResponse();
+        response.setPurchasedItemDetails(purchasedItemDetails);
+
+        return response;
     }
 }
