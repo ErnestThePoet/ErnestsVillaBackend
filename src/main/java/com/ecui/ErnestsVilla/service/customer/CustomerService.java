@@ -268,7 +268,9 @@ public class CustomerService {
             unpaidPurchase.setExpireTime(expireTime);
             unpaidPurchase.setItemId(i.getItemId());
             unpaidPurchase.setPaymentCents(currentItemTotalPriceCents);
-            if (!isFirstSave) {
+            if (isFirstSave) {
+                unpaidPurchase.setPurchaseId(-1);
+            } else {
                 unpaidPurchase.setPurchaseId(purchaseId);
             }
             unpaidPurchase.setSellerAccount(item.getSellerAccount());
