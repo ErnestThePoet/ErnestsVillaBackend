@@ -3,7 +3,7 @@ package com.ecui.ErnestsVilla.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "unpaid_purchases",indexes = {
+@Table(name = "unpaid_purchases", indexes = {
         @Index(columnList = "customerAccount"),
         @Index(columnList = "expireTime"),
         @Index(columnList = "purchaseId")
@@ -13,32 +13,38 @@ public class UnpaidPurchase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "purchaseId",nullable = false)
+    @Column(name = "purchaseId", nullable = false)
     private Integer purchaseId;
 
-    @Column(name = "customerAccount",nullable = false)
+    @Column(name = "customerAccount", nullable = false)
     private String customerAccount;
 
-    @Column(name = "sellerAccount",nullable = false)
+    @Column(name = "sellerAccount", nullable = false)
     private String sellerAccount;
 
-    @Column(name = "itemId",nullable = false)
+    @Column(name = "itemId", nullable = false)
     private Integer itemId;
 
-    @Column(name = "count",nullable = false)
+    @Column(name = "count", nullable = false)
     private Integer count;
 
-    @Column(name = "paymentCents",nullable = false)
+    @Column(name = "paymentCents", nullable = false)
     private Integer paymentCents;
 
-    @Column(name = "consigneeAddress",nullable = false)
+    @Column(name = "consigneeAddress", nullable = false)
     private String consigneeAddress;
 
-    @Column(name = "consigneeName",nullable = false)
+    @Column(name = "consigneeName", nullable = false)
     private String consigneeName;
 
-    @Column(name = "consigneePhoneNumber",nullable = false)
+    @Column(name = "consigneePhoneNumber", nullable = false)
     private String consigneePhoneNumber;
+
+    @Column(name = "createTime", nullable = false)
+    private Long createTime;
+
+    @Column(name = "expireTime", nullable = false)
+    private Long expireTime;
 
     public String getConsigneeAddress() {
         return consigneeAddress;
@@ -71,12 +77,6 @@ public class UnpaidPurchase {
     public void setConsigneePhoneNumber(String consigneePhoneNumber) {
         this.consigneePhoneNumber = consigneePhoneNumber;
     }
-
-    @Column(name = "createTime",nullable = false)
-    private Long createTime;
-
-    @Column(name = "expireTime",nullable = false)
-    private Long expireTime;
 
     public Integer getId() {
         return id;

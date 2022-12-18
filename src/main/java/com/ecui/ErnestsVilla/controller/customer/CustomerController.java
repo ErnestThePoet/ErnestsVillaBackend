@@ -116,8 +116,19 @@ public class CustomerController {
         return customerService.clearUserCart(user.getAccount());
     }
 
+    @GetMapping(path = "/get_unpaid_purchase")
+    public GetUnpaidPurchaseResponse getUnpaidPurchase(@RequestParam String accessId) {
+        var user = userService.getUserWithAccessId(accessId);
+
+        if (user == null) {
+            return new GetUnpaidPurchaseResponse("accessId无效");
+        }
+
+        return customerService.getUnpaidPurchase(user.getAccount());
+    }
+
     @PostMapping(path = "/create_order")
-    public CreateOrderResponse createOrder(@RequestBody CreateOrderRequest request){
+    public CreateOrderResponse createOrder(@RequestBody CreateOrderRequest request) {
         var user = userService.getUserWithAccessId(request.getAccessId());
 
         if (user == null) {
@@ -130,6 +141,43 @@ public class CustomerController {
                 request.getConsigneeName(),
                 request.getConsigneeAddress(),
                 request.getConsigneePhoneNumber()
+        );
+    }
+
+    @DeleteMapping(path = "/cancel_order")
+    public SuccessMsgResponse cancelOrder(
+            @RequestParam String accessId,
+            @RequestParam Integer purchaseId
+    ) {
+        var user = userService.getUserWithAccessId(accessId);
+
+        if (user == null) {
+            return new SuccessMsgResponse("accessId无效");
+        }
+
+        return customerService.cancelOrder(user.getAccount(), purchaseId);
+    }
+
+    @PostMapping(path = "/confirm_order")
+    public SuccessMsgResponse confirmOrder(
+            @RequestParam String accessId,
+            @RequestParam Integer purchaseId,
+            @RequestParam String timeStamp,
+            @RequestParam String pimd,
+            @RequestParam String ds
+    ) {
+        var user = userService.getUserWithAccessId(accessId);
+
+        if (user == null) {
+            return new SuccessMsgResponse("accessId无效");
+        }
+
+        return customerService.confirmOrder(
+                user.getAccount(),
+                purchaseId,
+                timeStamp,
+                pimd,
+                ds
         );
     }
 }

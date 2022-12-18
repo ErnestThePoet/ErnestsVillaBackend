@@ -5,6 +5,7 @@ import com.ecui.ErnestsVilla.dao.PurchaseRepository;
 import com.ecui.ErnestsVilla.dao.UnpaidPurchaseRepository;
 import com.ecui.ErnestsVilla.utils.DateTimeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +16,7 @@ public class TimerService {
     @Autowired
     ItemRepository itemRepository;
 
+    @Scheduled(fixedRate = 20 * DateTimeHelper.MS_PER_MIN)
     public void clearExpiredUnpaidPurchases() {
         var expiredUnpaidPurchases =
                 unpaidPurchaseRepository.findByExpireTimeLessThan(DateTimeHelper.getNow());

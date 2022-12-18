@@ -11,14 +11,14 @@ import com.ecui.ErnestsVilla.dao.ItemRepository;
 import com.ecui.ErnestsVilla.dao.PurchaseRepository;
 import com.ecui.ErnestsVilla.dao.UnpaidPurchaseRepository;
 import com.ecui.ErnestsVilla.entity.CartItem;
+import com.ecui.ErnestsVilla.entity.Purchase;
 import com.ecui.ErnestsVilla.entity.UnpaidPurchase;
-import com.ecui.ErnestsVilla.utils.CurrencyHelper;
-import com.ecui.ErnestsVilla.utils.DateTimeHelper;
-import com.ecui.ErnestsVilla.utils.ItemHelper;
+import com.ecui.ErnestsVilla.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -163,6 +163,30 @@ public class CustomerService {
         return new SuccessMsgResponse();
     }
 
+    public GetUnpaidPurchaseResponse getUnpaidPurchase(String customerAccount) {
+        var unpaidPurchases = unpaidPurchaseRepository.findByCustomerAccount(customerAccount);
+        if (unpaidPurchases.size() == 0) {
+            var response = new GetUnpaidPurchaseResponse();
+            response.setHasUnpaidPurchase(false);
+            return response;
+        }
+
+        int totalPriceCents = 0;
+
+        for (var i : unpaidPurchases) {
+            totalPriceCents += i.getPaymentCents();
+        }
+
+        var response = new GetUnpaidPurchaseResponse();
+        response.setHasUnpaidPurchase(true);
+        response.setExpireTime(unpaidPurchases.get(0).getExpireTime());
+        response.setPurchaseId(unpaidPurchases.get(0).getPurchaseId());
+        response.setTotalPriceCents(totalPriceCents);
+        response.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(totalPriceCents));
+
+        return response;
+    }
+
     private String getSorryMessage(String itemName, String sorryContent) {
         return "很抱歉，您选择的商品【%s】%s".formatted(
                 ItemHelper.getShortItemName(itemName), sorryContent);
@@ -250,5 +274,64 @@ public class CustomerService {
         response.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(totalPriceCents));
 
         return response;
+    }
+
+    public SuccessMsgResponse cancelOrder(
+            String customerAccount,
+            Integer purchaseId) {
+        unpaidPurchaseRepository.deleteByCustomerAccountAndPurchaseId(
+                customerAccount, purchaseId);
+        return new SuccessMsgResponse();
+    }
+
+    public SuccessMsgResponse confirmOrder(
+            String customerAccount,
+            Integer purchaseId,
+
+            String timeStamp,
+            String pimdBase64,
+            String dsBase64
+    ){
+        var unpaidPurchases=unpaidPurchaseRepository
+                .findByCustomerAccountAndPurchaseId(customerAccount,purchaseId);
+        if(unpaidPurchases.size()==0){
+            return new SuccessMsgResponse("订单不存在");
+        }
+
+        byte[] oimd= HashHelper.sha256(timeStamp+purchaseId.toString());
+        byte[] pimd= Base64.getDecoder().decode(pimdBase64);
+
+        byte[] pomd= HashHelper.sha256(ByteArrayUtil.concat(pimd,oimd));
+
+        if(!ByteArrayUtil.equals(pomd,Base64.getDecoder().decode(dsBase64))){
+            return new SuccessMsgResponse("双重签名验证失败");
+        }
+
+        unpaidPurchaseRepository.deleteByCustomerAccountAndPurchaseId(customerAccount,purchaseId);
+
+        long purchaseTime=DateTimeHelper.getNow();
+
+        List<Purchase> purchases=new ArrayList<>();
+
+        for(var i:unpaidPurchases){
+            purchases.add(new Purchase(i,purchaseTime));
+
+            var itemOptional=itemRepository.findById(i.getItemId());
+
+            // When this happens, the seller would be informed about this paid order
+            if(itemOptional.isEmpty()){
+                continue;
+            }
+
+            var item=itemOptional.get();
+
+            item.setPurchaseCount(item.getPurchaseCount()+i.getCount());
+
+            itemRepository.save(item);
+        }
+
+        purchaseRepository.saveAll(purchases);
+
+        return new SuccessMsgResponse();
     }
 }

@@ -1,5 +1,7 @@
 package com.ecui.ErnestsVilla.entity;
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,7 +10,20 @@ import javax.persistence.*;
         @Index(columnList = "sellerAccount"),
         @Index(columnList = "purchaseId")
 })
+@NoArgsConstructor
 public class Purchase {
+    public Purchase(UnpaidPurchase unpaidPurchase,Long purchaseTime){
+        this.consigneeAddress=unpaidPurchase.getConsigneeAddress();
+        this.consigneeName=unpaidPurchase.getConsigneeName();
+        this.consigneePhoneNumber=unpaidPurchase.getConsigneePhoneNumber();
+        this.count=unpaidPurchase.getCount();
+        this.customerAccount=unpaidPurchase.getCustomerAccount();
+        this.itemId=unpaidPurchase.getItemId();
+        this.paymentCents=unpaidPurchase.getPaymentCents();
+        this.purchaseId=unpaidPurchase.getPurchaseId();
+        this.purchaseTime=purchaseTime;
+        this.sellerAccount=unpaidPurchase.getSellerAccount();
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
