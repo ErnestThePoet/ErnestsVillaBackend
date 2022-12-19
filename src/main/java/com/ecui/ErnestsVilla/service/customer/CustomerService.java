@@ -8,13 +8,11 @@ import com.ecui.ErnestsVilla.controller.customer.request.objs.SingleSellerPaymen
 import com.ecui.ErnestsVilla.controller.customer.response.*;
 import com.ecui.ErnestsVilla.controller.common.objs.SingleItemPreview;
 import com.ecui.ErnestsVilla.controller.customer.response.objs.SinglePurchasedItemDetail;
-import com.ecui.ErnestsVilla.dao.CartItemRepository;
-import com.ecui.ErnestsVilla.dao.ItemRepository;
-import com.ecui.ErnestsVilla.dao.PurchaseRepository;
-import com.ecui.ErnestsVilla.dao.UnpaidPurchaseRepository;
+import com.ecui.ErnestsVilla.dao.*;
 import com.ecui.ErnestsVilla.entity.CartItem;
 import com.ecui.ErnestsVilla.entity.Purchase;
 import com.ecui.ErnestsVilla.entity.UnpaidPurchase;
+import com.ecui.ErnestsVilla.entity.User;
 import com.ecui.ErnestsVilla.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,9 @@ import java.util.*;
 public class CustomerService {
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private UnpaidPurchaseRepository unpaidPurchaseRepository;
@@ -173,8 +174,18 @@ public class CustomerService {
         int totalPriceCents = 0;
 
         Map<String, Integer> sellerTotalPriceCents = new HashMap<>();
+        Map<String, User> sellerUser = new HashMap<>();
 
         for (var i : unpaidPurchases) {
+            if (!sellerUser.containsKey(i.getSellerAccount())) {
+                var userOptional = userRepository.findByAccount(i.getSellerAccount());
+                if (userOptional.isEmpty()) {
+                    return new GetUnpaidPurchaseResponse(
+                            "商家【%s】不存在".formatted(i.getSellerAccount()));
+                }
+                sellerUser.put(i.getSellerAccount(), userOptional.get());
+            }
+
             totalPriceCents += i.getPaymentCents();
             if (sellerTotalPriceCents.containsKey(i.getSellerAccount())) {
                 sellerTotalPriceCents.put(
@@ -190,6 +201,8 @@ public class CustomerService {
         for (var i : sellerTotalPriceCents.entrySet()) {
             var sellerPayment = new SingleSellerPayment();
             sellerPayment.setSellerAccount(i.getKey());
+            sellerPayment.setSellerBank1Account(sellerUser.get(i.getKey()).getBank1Account());
+            sellerPayment.setSellerBank2Account(sellerUser.get(i.getKey()).getBank2Account());
             sellerPayment.setTotalPriceCents(i.getValue());
             sellerPayment.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(i.getValue()));
             sellerPayments.add(sellerPayment);
@@ -291,8 +304,18 @@ public class CustomerService {
         }
 
         Map<String, Integer> sellerTotalPriceCents = new HashMap<>();
+        Map<String, User> sellerUser = new HashMap<>();
 
         for (var i : unpaidPurchases) {
+            if (!sellerUser.containsKey(i.getSellerAccount())) {
+                var userOptional = userRepository.findByAccount(i.getSellerAccount());
+                if (userOptional.isEmpty()) {
+                    return new GetUnpaidPurchaseResponse(
+                            "商家【%s】不存在".formatted(i.getSellerAccount()));
+                }
+                sellerUser.put(i.getSellerAccount(), userOptional.get());
+            }
+
             if (sellerTotalPriceCents.containsKey(i.getSellerAccount())) {
                 sellerTotalPriceCents.put(
                         i.getSellerAccount(),
@@ -307,6 +330,8 @@ public class CustomerService {
         for (var i : sellerTotalPriceCents.entrySet()) {
             var sellerPayment = new SingleSellerPayment();
             sellerPayment.setSellerAccount(i.getKey());
+            sellerPayment.setSellerBank1Account(sellerUser.get(i.getKey()).getBank1Account());
+            sellerPayment.setSellerBank2Account(sellerUser.get(i.getKey()).getBank2Account());
             sellerPayment.setTotalPriceCents(i.getValue());
             sellerPayment.setTotalPriceYuan(CurrencyHelper.getYuanFromCents(i.getValue()));
             sellerPayments.add(sellerPayment);
@@ -381,24 +406,24 @@ public class CustomerService {
         return new SuccessMsgResponse();
     }
 
-    public GetPurchaseResponse getPurchase(String customerAccount){
-        List<SinglePurchasedItemDetail> purchasedItemDetails=new ArrayList<>();
+    public GetPurchaseResponse getPurchase(String customerAccount) {
+        List<SinglePurchasedItemDetail> purchasedItemDetails = new ArrayList<>();
 
-        var purchases=purchaseRepository.findByCustomerAccount(customerAccount);
+        var purchases = purchaseRepository.findByCustomerAccount(customerAccount);
 
-        for(var i:purchases){
-            var itemOptional=itemRepository.findById(i.getItemId());
-            if(itemOptional.isEmpty()){
+        for (var i : purchases) {
+            var itemOptional = itemRepository.findById(i.getItemId());
+            if (itemOptional.isEmpty()) {
                 purchasedItemDetails.add(new SinglePurchasedItemDetail(i));
                 continue;
             }
 
-            var item=itemOptional.get();
+            var item = itemOptional.get();
 
-            purchasedItemDetails.add(new SinglePurchasedItemDetail(i,item));
+            purchasedItemDetails.add(new SinglePurchasedItemDetail(i, item));
         }
 
-        var response=new GetPurchaseResponse();
+        var response = new GetPurchaseResponse();
         response.setPurchasedItemDetails(purchasedItemDetails);
 
         return response;
