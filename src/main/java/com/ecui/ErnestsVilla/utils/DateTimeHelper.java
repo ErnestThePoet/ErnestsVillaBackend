@@ -5,9 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DateTimeHelper {
-    public static final long MS_PER_MIN = 60L * 1000L;
-    public static final long MS_PER_HOUR = 3600L * 1000L;
-    public static final long MS_PER_DAY = 86400L * 1000L;
+    public static final long MS_PER_SEC=1000L;
+    public static final long MS_PER_MIN = 60L * MS_PER_SEC;
+    public static final long MS_PER_HOUR = 3600L * MS_PER_SEC;
+    public static final long MS_PER_DAY = 86400L * MS_PER_SEC;
 
     public static boolean isExpired(long expire) {
         return expire < getNow();

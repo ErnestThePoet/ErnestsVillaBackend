@@ -1,8 +1,6 @@
 package com.ecui.ErnestsVilla.service.timer;
 
-import com.ecui.ErnestsVilla.dao.ItemRepository;
-import com.ecui.ErnestsVilla.dao.PurchaseRepository;
-import com.ecui.ErnestsVilla.dao.UnpaidPurchaseRepository;
+import com.ecui.ErnestsVilla.dao.*;
 import com.ecui.ErnestsVilla.utils.DateTimeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +14,10 @@ public class TimerService {
     @Autowired
     ItemRepository itemRepository;
 
-    @Scheduled(fixedRate = 20 * DateTimeHelper.MS_PER_MIN)
+    @Autowired
+    AccessIdRepository accessIdRepository;
+
+    @Scheduled(fixedRate = 20 * DateTimeHelper.MS_PER_SEC)
     public void clearExpiredUnpaidPurchases() {
         var expiredUnpaidPurchases =
                 unpaidPurchaseRepository.findByExpireTimeLessThan(DateTimeHelper.getNow());
@@ -34,5 +35,10 @@ public class TimerService {
 
             itemRepository.save(item);
         }
+    }
+
+    @Scheduled(fixedRate = DateTimeHelper.MS_PER_MIN)
+    public void clearExpiredAccessIds() {
+        accessIdRepository.deleteByAccessIdExpireLessThan(DateTimeHelper.getNow());
     }
 }

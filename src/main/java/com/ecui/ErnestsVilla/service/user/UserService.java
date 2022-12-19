@@ -121,9 +121,6 @@ public class UserService {
             if (checkPw(user.get(), password)) {
                 String accessId = addAccessIdExpire(account);
 
-                // login is the time when we clean up expired accessIds
-                accessIdRepository.deleteByAccessIdExpireLessThan(DateTimeHelper.getNow());
-
                 return new LoginResponse(
                         user.get(),
                         accessId,
@@ -148,9 +145,6 @@ public class UserService {
         if (user.isPresent()
                 && !DateTimeHelper.isExpired(user.get().getSessionIdExpire())) {
             String accessId = addAccessIdExpire(user.get().getAccount());
-
-            // login is the time when we clean up expired accessIds
-            accessIdRepository.deleteByAccessIdExpireLessThan(DateTimeHelper.getNow());
 
             return new LoginResponse(
                     user.get(),
